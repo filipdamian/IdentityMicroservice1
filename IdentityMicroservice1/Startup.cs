@@ -12,7 +12,7 @@ namespace IdentityMicroservice1
     public class Startup
     {
         public IConfiguration Configuration { get; }
-
+        private readonly string _policyName = "CorsPolicy";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -45,6 +45,7 @@ namespace IdentityMicroservice1
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "IdentityMicroservice1 v1"));
             }
 
+            app.UseCors(_policyName);
             app.UseHttpsRedirection();
 
             app.UseRouting();

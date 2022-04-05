@@ -38,5 +38,6 @@ namespace IdentityMicroservice.Domain.Entities
         public virtual ICollection<IdentityUserTokenConfirmation> IdentityUserTokenConfirmations { get; set; }
         public virtual ICollection<IdentityUserToken> IdentityUserTokens { get; set; }
         public virtual ICollection<IdentityUserIdentityRole> IdentityUserRoles { get; set; }
+        //public ICollection<WOType> WOTypes { get; set; } //modif
     }
 }

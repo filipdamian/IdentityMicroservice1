@@ -16,12 +16,17 @@ namespace IdentityMicroservice.Application.Common.Interfaces
         Task<T> GetUserTokensSelectedProperties<T>(string tokenValue, Expression<Func<IdentityUserTokenConfirmation, T>> selector, CancellationToken cancellationToken = default);
         Task<IdentityUserTokenConfirmation> GetIdentityUserActiveTokenConfirmationByToken(string token, ConfirmationTokenType confirmationTokenType);
         Task<IdentityUser> GetUserById(Guid id);
+        Task<IdentityUser> GetUserByEmail(string email);
+        Task<IdentityUser> GetUserByIdentityUserTokenConfirmation(string token);
+
         Task<TokenWrapper> Login(LoginCommand loginCommand);
         Task<IdentityUser> Register(RegisterCommand registerCommand);
         Task<IdentityUserToken> GetUserTokenByRefreshToken(string refreshtoken);
         Task<IdentityUser> updateUser(IdentityUser user);
+        Task<IdentityUser> UpdateUserPassword(IdentityUser user,string password);
         Task<bool> saveAsync();
+       // Task<IdentityUserTokenConfirmation> GetPasswordRecoveryTokenByUser(IdentityUser user);
 
-       
+
     }
 }

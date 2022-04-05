@@ -1,4 +1,5 @@
-﻿using IdentityMicroservice.Application.Common.Exceptions;
+﻿using IdentityMicroservice.Application.Common.Configurations;
+using IdentityMicroservice.Application.Common.Exceptions;
 using IdentityMicroservice.Application.Common.Interfaces;
 using IdentityMicroservice.Application.Features.Auth.Login;
 using IdentityMicroservice.Application.Features.PasswordHashing;
@@ -26,11 +27,13 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
         private readonly IHashAlgo _hashAlgo;
         private readonly IdentityDbContext _context;
         private readonly ITokenManager _tokenManager;
-        public UserManager(IHashAlgo hashAlgo, IdentityDbContext context, ITokenManager tokenManager)
+        private readonly SignInKeySetting _signInKeySetting;
+        public UserManager(IHashAlgo hashAlgo, IdentityDbContext context, ITokenManager tokenManager, SignInKeySetting signInKeySetting)
         {
             _hashAlgo = hashAlgo;
             _context = context;
             _tokenManager = tokenManager;
+            _signInKeySetting = signInKeySetting;
         }
         //imporv2
         public async Task<IdentityUserTokenConfirmation> GetIdentityUserActiveTokenConfirmationByToken(string token, ConfirmationTokenType confirmationTokenType)
@@ -41,7 +44,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
                     prop.ConfirmationToken.Equals(token) && 
                     prop.IsUsed == false && 
                     prop.ConfirmationTypeId == confirmationTokenType &&
-                    prop.ExpireDate > DateTime.Now)
+                    prop.ExpireDate > DateTime.UtcNow)
                 .SingleOrDefaultAsync();
 
             return utc;
@@ -50,6 +53,12 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
         public async Task<IdentityUser> GetUserById(Guid id)
         {
             var user = await _context.IdentityUsers.Where(u => u.Id.Equals(id)).SingleOrDefaultAsync();
+            return user;
+        }
+
+        public async Task<IdentityUser> GetUserByEmail(string email)
+        {
+            var user = await _context.IdentityUsers.Where(u => u.Email.Equals(email)).SingleOrDefaultAsync();
             return user;
         }
 
@@ -89,9 +98,9 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
                 var newJti = Guid.NewGuid().ToString();
                 var tokenHandler = new JwtSecurityTokenHandler();
             //usersecret
-                var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("guidlikesecretkey"));
-
-                var tokenresult= await _tokenManager.TokenConfig(signinKey, user, roles, tokenHandler, newJti);
+                var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_signInKeySetting.SecretSignInKeyForJwtToken));
+                //int usedRefreshes = -1;
+                var tokenresult= await _tokenManager.GenerateTokenAndRefreshToken(signinKey, user, roles, tokenHandler, newJti);
                 //var refreshToken = _tokenManager.GenerateRefreshToken();
 
                
@@ -148,6 +157,8 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
         {
             return await _context.SaveChangesAsync() > 0;
         }
+
+
         public async Task<IdentityUser> updateUser(IdentityUser user)
         {
            
@@ -155,5 +166,30 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
             await _context.SaveChangesAsync();
             return  user;
         }
+
+        public async Task<IdentityUser> UpdateUserPassword(IdentityUser user,string password)
+        {
+            string updatedPassword = _hashAlgo.CalculateHashValueWithInput(password);
+            if (updatedPassword != null)
+            {
+                user.PasswordHash = updatedPassword;
+                await _context.SaveChangesAsync();
+
+                return user;
+            }
+            return null;
+        }
+
+        public async Task<IdentityUser> GetUserByIdentityUserTokenConfirmation(string token)
+        {
+            var identityUserTokenConfirmationObj = await _context.IdentityUserTokenConfirmations.Where(utc => utc.ConfirmationToken.Equals(token) && utc.ConfirmationTypeId.Equals(ConfirmationTokenType.RESET_PASSWORD)).SingleOrDefaultAsync();
+            var user = await _context.IdentityUsers.Where(u => u.Id.Equals(identityUserTokenConfirmationObj.UserId)).SingleOrDefaultAsync();
+            return user;
+        }
+       /* public async Task<IdentityUserTokenConfirmation> GetPasswordRecoveryTokenByUser(IdentityUser user)
+        {
+            var obj = await _context.IdentityUserTokenConfirmations.Where(utc => utc.UserId.Equals(user.Id)).FirstOrDefaultAsync();
+            return obj;
+        }*/
     }
 }

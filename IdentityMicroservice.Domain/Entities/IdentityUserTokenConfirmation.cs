@@ -14,7 +14,7 @@ namespace IdentityMicroservice.Domain.Entities
         public bool IsUsed { get; set; }
         public bool IsRevoked { get; set; }
 
-        //"http://localhost:4200/auth/email-confirm?token=asasa-asasaa-sasas"
+        
 
         public virtual IdentityUser User { get; set; }
     }

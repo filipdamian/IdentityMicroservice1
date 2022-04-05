@@ -19,6 +19,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
 
         public async Task<bool> IsEmailConfirmed(string userIntroducedToken, IdentityUserTokenConfirmation obj,IdentityUser user)
         {
+            
             if (userIntroducedToken == obj.ConfirmationToken)
             {
                 obj.IsUsed = true;
@@ -30,6 +31,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
             return false;
 
         }
+      
 
         public async Task SendEmailConfirmation(IdentityUser user,IdentityUserTokenConfirmation token)
         {
@@ -37,9 +39,10 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
             {
                 //generate random code or link to send to body
                // var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:{token.ConfirmationToken}");
-                var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:https://localhost:4200/auth/email-confirmation?token={token.ConfirmationToken}");
+                var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:http://localhost:4200/auth/email-confirmation/{token.ConfirmationToken}");
                 await _emailSender.SendEmailAsync(message); 
-             
+
+
             }
             catch 
             {
@@ -47,6 +50,22 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
                 throw new MailConfirmationFailedToSendException("Failed to send mail confirmation");
             }
 
+        }
+        public async Task<bool> SendPasswordRecoveryEmail(IdentityUser user,IdentityUserTokenConfirmation token)
+        {
+           
+            try
+            {
+                var message = new MessageUsers(new string[] { user.Email }, "Password Recovery Link", $"This is the link for password recovery http://localhost:4200/auth/forgot-password/{token.ConfirmationToken}");
+                await _emailSender.SendEmailAsync(message);
+                return true;
+            }
+            catch
+            {
+                return false; 
+                
+            }
+            
         }
     }
 }

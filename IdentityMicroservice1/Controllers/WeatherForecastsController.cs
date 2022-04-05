@@ -34,7 +34,7 @@ namespace IdentityMicroservice1.Controllers
             }
             var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
-                Date = DateTime.Now.AddDays(index),
+                Date = DateTime.UtcNow.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
@@ -57,7 +57,7 @@ namespace IdentityMicroservice1.Controllers
             var generationForcasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Id = index,
-                Date = DateTime.Now.AddDays(index),
+                Date = DateTime.UtcNow.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })

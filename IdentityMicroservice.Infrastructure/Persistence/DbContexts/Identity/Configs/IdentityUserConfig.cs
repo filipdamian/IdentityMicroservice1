@@ -22,6 +22,8 @@ namespace IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity.Co
             builder.HasMany(utc => utc.IdentityUserTokenConfirmations).WithOne(u => u.User);
             builder.HasMany(ut => ut.IdentityUserTokens).WithOne(u => u.User);
             builder.HasMany(uel => uel.IdentityUserExternalLogins).WithOne(u => u.User);
+            //
+           // builder.HasMany(wot => wot.WOTypes).WithOne(u => u.IdentityUser);
             
         }
     }

@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityMicroservice.Domain.Entities;
+using IdentityMicroservice.Domain.Enums;
 
 namespace IdentityMicroservice.Application.ViewModels.AppInternal
 {
@@ -32,7 +33,6 @@ namespace IdentityMicroservice.Application.ViewModels.AppInternal
         {
             bool ok=false;
             var userProps = await _userManager.GetUserSelectedProperties(request.Email, user => new { user.Id, user.Email });
-            //var userProps = false;
             if(userProps!=null)
             {
                
@@ -42,17 +42,12 @@ namespace IdentityMicroservice.Application.ViewModels.AppInternal
             else
             {
                 var result = await _userManager.Register(request);
-                var token = await _tokenManager.MailTokenConfig(result);
-                await _emailManager.SendEmailConfirmation(result,token);
+                var tokenFilterAndCreate = await _tokenManager.CreateConfirmationToken(result.Id, ConfirmationTokenType.EMAIL_CONFIRMATION);
+                await _emailManager.SendEmailConfirmation(result, tokenFilterAndCreate);
                 ok = true;
-                ///sending email confirmation to 
-                //result.Email
-                //resend email confirmation link method
               
             }
             return ok;
-            //var result = _userManager.Register(request);
-           // return result;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using IdentityMicroservice.Application.Common.Exceptions;
+﻿using IdentityMicroservice.Application.Common.Configurations;
+using IdentityMicroservice.Application.Common.Exceptions;
 using IdentityMicroservice.Application.Common.Interfaces;
 using IdentityMicroservice.Application.ViewModels.External.Auth;
 using IdentityMicroservice.Domain.Entities;
@@ -20,11 +21,14 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
         private readonly IUserManager _userManager;
         private readonly IHashAlgo _hashAlgo;
         private readonly ITokenManager _tokenManager;
-        public LoginCommandHandler(IUserManager userManager, IHashAlgo hashAlgo, ITokenManager tokenManager)
+        private readonly LoginTokenConfig _loginTokenConfig;
+
+        public LoginCommandHandler(IUserManager userManager, IHashAlgo hashAlgo, ITokenManager tokenManager, LoginTokenConfig loginTokenConfig)
         {
             _userManager = userManager;
             _hashAlgo = hashAlgo;
             _tokenManager = tokenManager;
+            _loginTokenConfig = loginTokenConfig;
         }
 
         public async Task<TokenWrapper> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -49,10 +53,9 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 throw new EmailConfirmationException("Email not confirmed");
             }
 
-            if (userProps.LockoutEnabled == true && userProps.LockoutEnd > DateTime.Now)
-            {
-                throw new AccountStillLockedException("Account still locked!");
-            }
+            
+           
+               
            
 
             string initialsalt=userProps.PasswordHash.Split('.')[1];
@@ -61,7 +64,12 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
 
             var user = await _userManager.GetUserById(userProps.Id);
 
-            if (userProps.LockoutEnabled == true && userProps.LockoutEnd < DateTime.Now)
+            if (userProps.LockoutEnabled == true && userProps.LockoutEnd < DateTime.UtcNow)
+            {
+                user.LockoutEnabled = false;
+            }
+
+            if (userProps.LockoutEnabled == true && userProps.LockoutEnd < DateTime.UtcNow)
             {
                 user.LockoutEnabled = false;
                 user.LockoutEnd = null;
@@ -74,7 +82,7 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 if (user.NumberOfFailLoginAttempts >= maxLoginAttempts)
                 {
                     user.LockoutEnabled = true;
-                    var timeLocked = DateTime.Now.AddMinutes(59); //nr minute in appsettings 
+                    var timeLocked = DateTime.UtcNow.AddMinutes(Int32.Parse(_loginTokenConfig.Minutes)); //nr minute in appsettings 
                     user.LockoutEnd = timeLocked;
                     await _userManager.updateUser(user);
                     throw new ExceededMaximumAmountOfLoginAttemptsException($"Exceeded maximum amount of login attemtps. {user.LockoutEnd} minutes left");
@@ -86,6 +94,10 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 await _userManager.updateUser(user);
                 throw new IncorrectPasswordException("Wrong Password");
             }
+            if (userProps.LockoutEnabled == true && userProps.LockoutEnd > DateTime.UtcNow)
+            {
+                throw new AccountStillLockedException("Account still locked!");
+            }
             else
             {
                 //get identityusertokenbyuserid
@@ -96,6 +108,7 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 return await result;
 
             }
+           
         }
     }
 }

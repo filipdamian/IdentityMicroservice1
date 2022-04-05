@@ -24,5 +24,12 @@ namespace IdentityMicroservice1.Controllers
         }
         */
 
+        [HttpGet("")]
+        [Authorize()]
+        public IActionResult FakeGet()
+        {
+            return Ok(true);
+        }
+
     }
 }

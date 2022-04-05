@@ -11,5 +11,7 @@ namespace IdentityMicroservice.Application.Common.Interfaces
     {
         Task SendEmailConfirmation(IdentityUser user,IdentityUserTokenConfirmation token);
         Task<bool> IsEmailConfirmed(string userIntroducedToken, IdentityUserTokenConfirmation TokenFromDb,IdentityUser user);
+        Task<bool> SendPasswordRecoveryEmail(IdentityUser user, IdentityUserTokenConfirmation token);
+       
     }
 }

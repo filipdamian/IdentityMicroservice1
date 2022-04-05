@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityMicroservice.Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20220223182024_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20220324220816_SecondMigration")]
+    partial class SecondMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -221,13 +221,13 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("RefreshTokenValue")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(800)
+                        .HasColumnType("nvarchar(800)");
 
                     b.Property<string>("TokenValue")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(800)
+                        .HasColumnType("nvarchar(800)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -273,6 +273,143 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("IdentityUserTokenConfirmation");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.Screen", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ChangeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ScreenCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ScreenName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Screen");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ChangeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DurationMinutes")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("WOTypeCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("WOTypeName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WOType");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOTypeScenario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ScenarioCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ScenarioName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WOTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WOTypeId");
+
+                    b.ToTable("WOTypeScenario");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOTypeScenarioStep", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ScreenCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("ScreenId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("StepName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("StepNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WOScenarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScreenId")
+                        .IsUnique();
+
+                    b.HasIndex("WOScenarioId");
+
+                    b.ToTable("WOTypeScenarioStep");
                 });
 
             modelBuilder.Entity("IdentityMicroservice.Domain.Entities.IdentityRole", b =>
@@ -356,6 +493,36 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOTypeScenario", b =>
+                {
+                    b.HasOne("IdentityMicroservice.Domain.Entities.WOType", "WOType")
+                        .WithMany("WOTypeScenarios")
+                        .HasForeignKey("WOTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WOType");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOTypeScenarioStep", b =>
+                {
+                    b.HasOne("IdentityMicroservice.Domain.Entities.Screen", "Screen")
+                        .WithOne("WOTypeScenarioStep")
+                        .HasForeignKey("IdentityMicroservice.Domain.Entities.WOTypeScenarioStep", "ScreenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdentityMicroservice.Domain.Entities.WOTypeScenario", "WOTypeScenario")
+                        .WithMany("WOTypeScenarioSteps")
+                        .HasForeignKey("WOScenarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Screen");
+
+                    b.Navigation("WOTypeScenario");
+                });
+
             modelBuilder.Entity("IdentityMicroservice.Domain.Entities.IdentityRole", b =>
                 {
                     b.Navigation("IdentityRoleClaims");
@@ -376,6 +543,21 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                     b.Navigation("IdentityUserTokenConfirmations");
 
                     b.Navigation("IdentityUserTokens");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.Screen", b =>
+                {
+                    b.Navigation("WOTypeScenarioStep");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOType", b =>
+                {
+                    b.Navigation("WOTypeScenarios");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.WOTypeScenario", b =>
+                {
+                    b.Navigation("WOTypeScenarioSteps");
                 });
 #pragma warning restore 612, 618
         }

@@ -99,8 +99,8 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TokenValue = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    RefreshTokenValue = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TokenValue = table.Column<string>(type: "nvarchar(800)", maxLength: 800, nullable: false),
+                    RefreshTokenValue = table.Column<string>(type: "nvarchar(800)", maxLength: 800, nullable: true),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsTokenRevoked = table.Column<bool>(type: "bit", nullable: false)
