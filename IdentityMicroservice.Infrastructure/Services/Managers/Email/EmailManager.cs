@@ -17,9 +17,9 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
             _emailSender = emailSender; _context = context;
         }
 
-        public async Task<bool> IsEmailConfirmed(string userIntroducedToken, IdentityUserTokenConfirmation obj,IdentityUser user)
+        public async Task<bool> IsEmailConfirmed(string userIntroducedToken, IdentityUserTokenConfirmation obj, IdentityUser user)
         {
-            
+
             if (userIntroducedToken == obj.ConfirmationToken)
             {
                 obj.IsUsed = true;
@@ -31,41 +31,52 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
             return false;
 
         }
-      
 
-        public async Task SendEmailConfirmation(IdentityUser user,IdentityUserTokenConfirmation token)
+
+        public async Task SendEmailConfirmation(IdentityUser user, IdentityUserTokenConfirmation token)
         {
             try
             {
                 //generate random code or link to send to body
-               // var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:{token.ConfirmationToken}");
-                var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:http://localhost:4200/auth/email-confirmation/{token.ConfirmationToken}");
-                await _emailSender.SendEmailAsync(message); 
+                // var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:{token.ConfirmationToken}");
+                var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:http://localhost:4200/unauthenticated/auth/email-confirmation/{token.ConfirmationToken}");
+                //EmailMessageModel message = new EmailMessageModel
+                //{
+                //    Email = user.Email,
+                //    Subject = "Email Confirmation",
+                //    Content = $"This is the confirmation code:http://localhost:4200/auth/email-confirmation/{token.ConfirmationToken}"
+                //};
+                await _emailSender.SendEmailAsync(message);
 
 
             }
-            catch 
+            catch
             {
 
                 throw new MailConfirmationFailedToSendException("Failed to send mail confirmation");
             }
 
         }
-        public async Task<bool> SendPasswordRecoveryEmail(IdentityUser user,IdentityUserTokenConfirmation token)
+        public async Task<bool> SendPasswordRecoveryEmail(IdentityUser user, IdentityUserTokenConfirmation token)
         {
-           
             try
             {
-                var message = new MessageUsers(new string[] { user.Email }, "Password Recovery Link", $"This is the link for password recovery http://localhost:4200/auth/forgot-password/{token.ConfirmationToken}");
+                var message = new MessageUsers(new string[] { user.Email }, "Password Recovery Link", $"This is the link for password recovery http://localhost:4200/unauthenticated/auth/forgot-password/{token.ConfirmationToken}");
+                //EmailMessageModel message = new EmailMessageModel
+                //{
+                //    Email = user.Email,
+                //    Subject = "Password Recovery Link",
+                //    Content = $"This is the link for password recovery http://localhost:4200/auth/forgot-password/{token.ConfirmationToken}"
+                //};
                 await _emailSender.SendEmailAsync(message);
                 return true;
             }
             catch
             {
-                return false; 
-                
+                return false;
+
             }
-            
+
         }
     }
 }

@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32002.261
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityMicroservice1", "IdentityMicroservice1\IdentityMicroservice1.csproj", "{CB9C439F-A651-4C5F-816C-72FA580CA368}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityMicroservice1", "IdentityMicroservice1\IdentityMicroservice1.csproj", "{CB9C439F-A651-4C5F-816C-72FA580CA368}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityMicroservice.Domain", "IdentityMicroservice.Domain\IdentityMicroservice.Domain.csproj", "{4A2D8995-85DE-42F3-B9D4-108A54AE7A50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityMicroservice.Domain", "IdentityMicroservice.Domain\IdentityMicroservice.Domain.csproj", "{4A2D8995-85DE-42F3-B9D4-108A54AE7A50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityMicroservice.Infrastructure", "IdentityMicroservice.Infrastructure\IdentityMicroservice.Infrastructure.csproj", "{8AEF027A-528B-4EF2-9445-D1545D53187C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityMicroservice.Infrastructure", "IdentityMicroservice.Infrastructure\IdentityMicroservice.Infrastructure.csproj", "{8AEF027A-528B-4EF2-9445-D1545D53187C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityMicroservice.Application", "IdentityMicroservice.Application\IdentityMicroservice.Application.csproj", "{A4845982-6FF3-4634-A87A-2B12DD46A340}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityMicroservice.Application", "IdentityMicroservice.Application\IdentityMicroservice.Application.csproj", "{A4845982-6FF3-4634-A87A-2B12DD46A340}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

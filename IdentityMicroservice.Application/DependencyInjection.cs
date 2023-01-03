@@ -40,7 +40,8 @@ namespace IdentityMicroservice.Application
                         .WithOrigins("https://localhost:4200")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .WithExposedHeaders(CustomHeader.XTokenExpired);
+                        .AllowAnyOrigin();
+                        //.WithExposedHeaders(CustomHeader.XTokenExpired);
                 });
             });
             return services;

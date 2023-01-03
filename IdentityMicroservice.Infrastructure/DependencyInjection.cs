@@ -11,6 +11,8 @@ using IdentityMicroservice.Application.ViewModels.External.Email;
 using IdentityMicroservice.Infrastructure.Services.HttpClients.EmailSender;
 using IdentityMicroservice.Infrastructure.Services.Managers.Token;
 using IdentityMicroservice.Infrastructure.Services.Managers.Email;
+using IdentityMicroservice.Infrastructure.Services.Managers.WebScraper;
+using IdentityMicroservice.Infrastructure.Services.Managers.CnnModel;
 
 namespace IdentityMicroservice.Infrastructure
 {
@@ -23,20 +25,38 @@ namespace IdentityMicroservice.Infrastructure
 
             services.AddScoped<IHashAlgo, HashAlgo>();
             services.AddSignInKeyConfiguration(configuration);
+            //services.CEVA(configuration);
             services.AddRefreshTokenConfiguration(configuration);
+            services.AddWebScraperConfiguration(configuration);
+            services.Configure<WebScraperOptions>(configuration.GetSection(WebScraperOptions.NAME));
             services.AddLoginTokenConfiguration(configuration);
             services.AddScoped<ITokenManager, TokenManager>();
             services.AddScoped<IUserManager, UserManager>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IEmailManager, EmailManager>();
+            services.AddScoped<IWebScraperManager, WebScraperManager>();
             services.AddEmailConfiguration(configuration);
+            services.AddSingleton<IDeepNeuralNetworkModel, DeepNeuralNetworkModel>();
             
-            
-            // services.AddScoped<SeedDb>();
             services.AddRazorPages();
 
             return services;
         }
+        private static IServiceCollection CEVA(this IServiceCollection services, IConfiguration configuration)
+        {
+            DeepNeuralNetworkModel model = new DeepNeuralNetworkModel();
+            model.LoadImagesInMemory();
+            return services;
+        }
+        private static IServiceCollection AddWebScraperConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            var webScraperConfig = configuration.GetSection(WebScraperOptions.NAME).Get<WebScraperOptions>();
+            Console.WriteLine(webScraperConfig.ChromeDriverOptions.LocalPath);
+            services.AddSingleton(webScraperConfig);
+            return services;
+
+        }
+
         private static IServiceCollection AddSignInKeyConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             var signinConfig = configuration.GetSection(SignInKeySetting.NAME).Get<SignInKeySetting>();

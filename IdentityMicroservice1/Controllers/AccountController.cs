@@ -5,13 +5,16 @@ using IdentityMicroservice.Application.Features.Auth.Login;
 
 using IdentityMicroservice.Application.ViewModels.AppInternal;
 using IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity;
-using IdentityMicroservice1.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityMicroservice.Application.Features.Auth.RefreshLoginToken;
+using IdentityMicroservice.Application.Features.LinkedinCrawler;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using IdentityMicroservice.Application.Features.ImageLabelPrediction;
 
 namespace IdentityMicroservice1.Controllers
 {
@@ -162,6 +165,47 @@ namespace IdentityMicroservice1.Controllers
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
+            }
+        }
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet]
+        [Route("Linkedin-Crawler")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserProfileInfo([FromQuery] string profileUrl)
+        {
+            try
+            {
+                LinkedInUserProfileCommand linkedInUserProfileCommand = new LinkedInUserProfileCommand
+                {
+                    ProfileUrl = profileUrl
+                };
+                var result = await Mediator.Send(linkedInUserProfileCommand);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        [Route("Image-Prediction")]
+        public async Task<IActionResult> PredictImageLabel([FromForm] IFormFile File)
+        {
+            try
+            {
+                ImageLabelPredictionCommand imglabelprecit = new ImageLabelPredictionCommand
+                {
+                    File = File
+                };
+                var result = await Mediator.Send(imglabelprecit);
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
             }
         }
     }
