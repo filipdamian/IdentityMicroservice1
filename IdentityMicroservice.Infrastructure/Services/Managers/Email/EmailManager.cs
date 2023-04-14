@@ -4,6 +4,7 @@ using IdentityMicroservice.Application.ViewModels.External.Email;
 using IdentityMicroservice.Domain.Entities;
 using IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity;
 using IdentityMicroservice.Infrastructure.Services.HttpClients.EmailSender;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
@@ -32,6 +33,15 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
 
         }
 
+        public bool IsValidEmail(string email)
+        {
+            if (email != null)
+            {
+                return Regex.IsMatch(email, "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<> ()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+ \"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$");
+            }
+
+            return false;
+        }
 
         public async Task SendEmailConfirmation(IdentityUser user, IdentityUserTokenConfirmation token)
         {
@@ -46,7 +56,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
                 //    Subject = "Email Confirmation",
                 //    Content = $"This is the confirmation code:http://localhost:4200/auth/email-confirmation/{token.ConfirmationToken}"
                 //};
-                await _emailSender.SendEmailAsync(message);
+                await _emailSender.SendEmailAsync(message); 
 
 
             }

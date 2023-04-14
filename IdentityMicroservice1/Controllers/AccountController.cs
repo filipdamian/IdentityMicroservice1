@@ -2,13 +2,10 @@
 using IdentityMicroservice.Application.Features.Auth.EmailConfirmation;
 using IdentityMicroservice.Application.Features.Auth.PasswordRecovery;
 using IdentityMicroservice.Application.Features.Auth.Login;
-
 using IdentityMicroservice.Application.ViewModels.AppInternal;
 using IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using IdentityMicroservice.Application.Features.Auth.RefreshLoginToken;
 using IdentityMicroservice.Application.Features.LinkedinCrawler;
@@ -30,7 +27,7 @@ namespace IdentityMicroservice1.Controllers
         }
 
         [HttpPost("register")]
-        public async Task <IActionResult> Register([FromBody]RegisterCommand registerCommand)
+        public async Task<IActionResult> Register([FromBody] RegisterCommand registerCommand)
         {
             try
             {
@@ -42,7 +39,7 @@ namespace IdentityMicroservice1.Controllers
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         [HttpPost]
@@ -51,8 +48,8 @@ namespace IdentityMicroservice1.Controllers
         {
             try
             {
-                 var result = await Mediator.Send(loginCommand);
-                 return Ok(result);
+                var result = await Mediator.Send(loginCommand);
+                return Ok(result);
                 //return Ok();
             }
             catch (NotFoundException ex)
@@ -70,7 +67,7 @@ namespace IdentityMicroservice1.Controllers
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
-            catch(AccountStillLockedException ex)
+            catch (AccountStillLockedException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
@@ -79,21 +76,21 @@ namespace IdentityMicroservice1.Controllers
 
         [HttpPost]
         [Route("email-confirm")]
-        
-        public async Task<IActionResult> EmailConfirmation([FromBody] EmailConfirmationCommand confirmEmailCommand )
+
+        public async Task<IActionResult> EmailConfirmation([FromBody] EmailConfirmationCommand confirmEmailCommand)
         {
             try
             {
                 var result = await Mediator.Send(confirmEmailCommand);
-                
+
                 return Ok(result);
             }
-            catch(ResendingEmailConfirmationException ex)
+            catch (ResendingEmailConfirmationException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
-     
+
         }
         [HttpPost]
         [Route("refresh-token")]
@@ -104,12 +101,12 @@ namespace IdentityMicroservice1.Controllers
                 var result = await Mediator.Send(refreshTokenCommand);
                 return Ok(result);
             }
-            catch(IntervalOfRefreshTokenExpiredException ex)
+            catch (IntervalOfRefreshTokenExpiredException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
-            catch(MaximumRefreshesExceededException ex)
+            catch (MaximumRefreshesExceededException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
@@ -130,12 +127,12 @@ namespace IdentityMicroservice1.Controllers
                 Console.WriteLine(ex.Message);
                 return NotFound(ex.Message);
             }
-            catch(CouldNotConfirmEmailException ex)
+            catch (CouldNotConfirmEmailException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
-            catch(EmailConfirmationException ex)
+            catch (EmailConfirmationException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
@@ -156,7 +153,7 @@ namespace IdentityMicroservice1.Controllers
                 Console.WriteLine(ex.Message);
                 return NotFound(ex.Message);
             }
-            catch(PasswordRecoveryTokenAlreadyUsedException ex)
+            catch (PasswordRecoveryTokenAlreadyUsedException ex)
             {
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
@@ -189,7 +186,9 @@ namespace IdentityMicroservice1.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [Route("Image-Prediction")]
         public async Task<IActionResult> PredictImageLabel([FromForm] IFormFile File)
         {

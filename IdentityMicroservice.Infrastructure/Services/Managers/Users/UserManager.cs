@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
 {
-    internal class UserManager : IUserManager
+    public class UserManager : IUserManager
     {
         private readonly IHashAlgo _hashAlgo;
         private readonly IdentityDbContext _context;

@@ -24,15 +24,37 @@ namespace IdentityMicroservice1
         {
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+
+            services.AddSwaggerGen(opt =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "IdentityMicroservice1", Version = "v1" });
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "IdentityMicroservice1", Version = "v1" });
+                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Enter JWT",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "bearer"
+                });
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
             });
 
             services.AddInfrastructure(Configuration);
             services.AddApplication(Configuration);          
-            
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

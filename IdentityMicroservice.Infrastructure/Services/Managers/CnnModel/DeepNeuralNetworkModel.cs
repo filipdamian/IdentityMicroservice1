@@ -104,8 +104,6 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.CnnModel
 
         public void MakePredictionsViaTrainedModel(string photoPath, byte[] byteFile)
         {
-
-    
             //path of new photo 
             var imageData = new ImageData()
             {
