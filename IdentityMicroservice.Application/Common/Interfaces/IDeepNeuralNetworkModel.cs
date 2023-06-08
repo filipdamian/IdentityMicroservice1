@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.ML;
+using Microsoft.ML.Data;
+using Microsoft.ML.Transforms;
 
 namespace IdentityMicroservice.Application.Common.Interfaces
 {
     public interface IDeepNeuralNetworkModel
     {
-        public void MakePredictionsViaTrainedModel(string photoPath, byte[] byteFile);
+        public (EstimatorChain<KeyToValueMappingTransformer>, IDataView) LoadImagesInMemory();
+        public string MakePredictionsViaTrainedModel(string photoPath, byte[] byteFile);
+        //public void RetrainModel(EstimatorChain<KeyToValueMappingTransformer> trainingPipeline, IDataView trainSet, string savedModelPath, string newImagesFolderPath);
+        public void RetrainModel(ITransformer preTrainedModel, IDataView trainSet, string savedModelPath, string newImagesFolderPath);
+        public IDataView LoadTrainSetFromDisk();
     }
 }

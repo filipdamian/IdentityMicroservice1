@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using IdentityMicroservice.Application;
+using Hangfire;
+using IdentityMicroservice.Infrastructure.Services.Cronjobs;
+using IdentityMicroservice.Infrastructure.Services.Middleware;
 
 namespace IdentityMicroservice1
 {
@@ -18,7 +21,7 @@ namespace IdentityMicroservice1
             Configuration = configuration;
         }
 
-      
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -53,8 +56,10 @@ namespace IdentityMicroservice1
                 });
             });
 
+            services.AddHttpClient();
+
             services.AddInfrastructure(Configuration);
-            services.AddApplication(Configuration);          
+            services.AddApplication(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -68,18 +73,24 @@ namespace IdentityMicroservice1
             }
 
             app.UseCors(_policyName);
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<AuthenticationMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            // app.MapHangfireDashboard();
+            app.UseHangfireDashboard();
+            JobSchedulers.ScheduleJobs();
+
         }
     }
 }

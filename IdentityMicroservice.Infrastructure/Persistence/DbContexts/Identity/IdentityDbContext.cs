@@ -16,10 +16,12 @@ namespace IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity
         public DbSet<IdentityUserIdentityRole> IdentityUserIdentityRoles { get; set; }
         public DbSet<IdentityUserToken> IdentityUserTokens { get; set; }
         public DbSet<IdentityUserTokenConfirmation> IdentityUserTokenConfirmations { get; set; }
+        public DbSet<FishTank> FishTanks { get; set; }
+        public DbSet<FishSpecs> FishSpecs { get; set; }
+        public DbSet<PetFish> PetFish { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }

@@ -80,7 +80,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Token
                 Issuer = _refreshTokenConfig.Issuer,
                 Audience = _refreshTokenConfig.Audience,
                // Expires = DateTime.UtcNow.AddDays(Int32.Parse(_loginTokenConfig.Days)),
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256),
              };
              var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -102,7 +102,9 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Token
             confirmationToken.ConfirmationTypeId = tokenType;
             confirmationToken.CreationDate = DateTime.UtcNow;
             confirmationToken.ExpireDate = DateTime.UtcNow.AddDays(Int32.Parse(_loginTokenConfig.Days)); //addhours
-            confirmationToken.ConfirmationToken = Guid.NewGuid().ToString();
+            //confirmationToken.ConfirmationToken = Guid.NewGuid().ToString();
+            confirmationToken.ConfirmationToken = new Random().Next(1000000).ToString("D6");
+
             _context.Set<IdentityUserTokenConfirmation>().Add(confirmationToken);
             await _context.SaveChangesAsync();
             return confirmationToken;

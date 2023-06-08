@@ -30,30 +30,27 @@ namespace IdentityMicroservice.Application.ViewModels.AppInternal
         }
         public async Task<bool> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
+            if (!_emailManager.IsValidEmail(request.Email))
+            {
+                string message = $"Username={request.Email} already registered";
+                throw new UserAlreadyRegisteredException(nameof(IdentityUser), message);
+            }
+
             bool ok = false;
             var userProps = await _userManager.GetUserSelectedProperties(request.Email, user => new { user.Id, user.Email }, cancellationToken);
             if (userProps != null)
             {
 
-                string message = $"Username={request.Email} already registered";
+                string message = $"Username ={request.Email} already registered";
                 throw new UserAlreadyRegisteredException(nameof(IdentityUser), message);
             }
             else
             {
-                var emailValidation = _emailManager.IsValidEmail(request.Email);
-                if (emailValidation == true)
-                {
-                    var result = await _userManager.Register(request);
-                    var tokenFilterAndCreate = await _tokenManager.CreateConfirmationToken(result.Id, ConfirmationTokenType.EMAIL_CONFIRMATION);
-                    await _emailManager.SendEmailConfirmation(result, tokenFilterAndCreate);
-                    ok = true;
-                }
-                else
-                {
-                    string message = $"Username={request.Email} already registered";
-                    throw new UserAlreadyRegisteredException(nameof(IdentityUser), message);
-                }
+                var result = await _userManager.Register(request);
+                var tokenFilterAndCreate = await _tokenManager.CreateConfirmationToken(result.Id, ConfirmationTokenType.EMAIL_CONFIRMATION);
 
+                await _emailManager.SendEmailConfirmation(result, tokenFilterAndCreate);
+                ok = true;
             }
             return ok;
         }

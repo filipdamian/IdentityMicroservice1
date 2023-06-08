@@ -40,9 +40,9 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
         {
             //daca token ul este inca valid si daca este pentru email confirmation 
             var utc = await _context.IdentityUserTokenConfirmations
-                .Where(prop => 
-                    prop.ConfirmationToken.Equals(token) && 
-                    prop.IsUsed == false && 
+                .Where(prop =>
+                    prop.ConfirmationToken.Equals(token) &&
+                    prop.IsUsed == false &&
                     prop.ConfirmationTypeId == confirmationTokenType &&
                     prop.ExpireDate > DateTime.UtcNow)
                 .SingleOrDefaultAsync();
@@ -86,43 +86,43 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
             return selectedUserTokenPropertiesObject;
         }
 
-        public async Task<TokenWrapper> Login(LoginCommand loginCommand)
+        public async Task<TokenWrapper> Login(string UniqueIdentifier)
         {
-         
-           
-            
-                IdentityUser user = await _context.IdentityUsers.Where(u => u.Username.Equals(loginCommand.UniqueIdentifier)|| u.Email.Equals(loginCommand.UniqueIdentifier)).SingleOrDefaultAsync();
-                user = await _context.IdentityUsers.Include(u => u.IdentityUserRoles).ThenInclude(ur => ur.IdentityRole).Where(u => u.Id.Equals(user.Id)).SingleOrDefaultAsync();
-                List<string> roles = user.IdentityUserRoles.Select(ur => ur.IdentityRole.Name).ToList();
 
-                var newJti = Guid.NewGuid().ToString();
-                var tokenHandler = new JwtSecurityTokenHandler();
+
+
+            IdentityUser user = await _context.IdentityUsers.Where(u => u.Username.Equals(UniqueIdentifier) || u.Email.Equals(UniqueIdentifier)).SingleOrDefaultAsync();
+            user = await _context.IdentityUsers.Include(u => u.IdentityUserRoles).ThenInclude(ur => ur.IdentityRole).Where(u => u.Id.Equals(user.Id)).SingleOrDefaultAsync();
+            List<string> roles = user.IdentityUserRoles.Select(ur => ur.IdentityRole.Name).ToList();
+
+            var newJti = Guid.NewGuid().ToString();
+            var tokenHandler = new JwtSecurityTokenHandler();
             //usersecret
-                var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_signInKeySetting.SecretSignInKeyForJwtToken));
-                //int usedRefreshes = -1;
-                var tokenresult= await _tokenManager.GenerateTokenAndRefreshToken(signinKey, user, roles, tokenHandler, newJti);
-                //var refreshToken = _tokenManager.GenerateRefreshToken();
-
-               
-                //????
-                
-                TokenWrapper tokenwrapper = new TokenWrapper();
-                tokenwrapper.Token = tokenresult.Item1; 
-                tokenwrapper.RefreshToken = tokenresult.Item2;
+            var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_signInKeySetting.SecretSignInKeyForJwtToken));
+            //int usedRefreshes = -1;
+            var tokenresult = await _tokenManager.GenerateTokenAndRefreshToken(signinKey, user, roles, tokenHandler, newJti);
+            //var refreshToken = _tokenManager.GenerateRefreshToken();
 
 
-                return tokenwrapper;
-     
-            
+            //????
+
+            TokenWrapper tokenwrapper = new TokenWrapper();
+            tokenwrapper.Token = tokenresult.Item1;
+            tokenwrapper.RefreshToken = tokenresult.Item2;
+
+
+            return tokenwrapper;
+
+
 
         }
 
-
-        public async  Task<IdentityUser> Register(RegisterCommand registerCommand)
+        public async Task<IdentityUser> Register(RegisterCommand registerCommand)
         {
             var user = await _context.IdentityUsers.Where(u => u.Email.Equals(registerCommand.Email)).SingleOrDefaultAsync();
             if (user != null)
-            {   string message = "Username=" + registerCommand.Email + " already registered";
+            {
+                string message = "Username=" + registerCommand.Email + " already registered";
                 throw new UserAlreadyRegisteredException(nameof(IdentityUser), message);
             }
             else
@@ -161,13 +161,13 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
 
         public async Task<IdentityUser> updateUser(IdentityUser user)
         {
-           
+
             _context.Set<IdentityUser>().Update(user);
             await _context.SaveChangesAsync();
-            return  user;
+            return user;
         }
 
-        public async Task<IdentityUser> UpdateUserPassword(IdentityUser user,string password)
+        public async Task<IdentityUser> UpdateUserPassword(IdentityUser user, string password)
         {
             string updatedPassword = _hashAlgo.CalculateHashValueWithInput(password);
             if (updatedPassword != null)
@@ -186,10 +186,45 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
             var user = await _context.IdentityUsers.Where(u => u.Id.Equals(identityUserTokenConfirmationObj.UserId)).SingleOrDefaultAsync();
             return user;
         }
-       /* public async Task<IdentityUserTokenConfirmation> GetPasswordRecoveryTokenByUser(IdentityUser user)
+
+        public async Task<TokenWrapper> RegisterGoogleUser(GoogleLoginResponseModel googleLogin)
         {
-            var obj = await _context.IdentityUserTokenConfirmations.Where(utc => utc.UserId.Equals(user.Id)).FirstOrDefaultAsync();
-            return obj;
-        }*/
+            var user = new IdentityUser
+            {
+                Email = googleLogin.Email,
+                EmailConfirmed = true,
+                Username = googleLogin.GivenName
+            };
+
+            _context.IdentityUsers.Add(user);
+            await _context.SaveChangesAsync();
+
+            var token = await Login(user.Email);
+
+            return token;
+
+        }
+
+        public async Task<TokenWrapper> RegisterFacebookUser(FacebookLoginResponseModel facebookLogin)
+        {
+            var user = new IdentityUser
+            {
+                Email = facebookLogin.Email,
+                EmailConfirmed = true,
+                Username = facebookLogin.Name
+            };
+
+            _context.IdentityUsers.Add(user);
+            await _context.SaveChangesAsync();
+
+            var token = await Login(user.Email);
+
+            return token;
+        }
+        /* public async Task<IdentityUserTokenConfirmation> GetPasswordRecoveryTokenByUser(IdentityUser user)
+{
+    var obj = await _context.IdentityUserTokenConfirmations.Where(utc => utc.UserId.Equals(user.Id)).FirstOrDefaultAsync();
+    return obj;
+}*/
     }
 }

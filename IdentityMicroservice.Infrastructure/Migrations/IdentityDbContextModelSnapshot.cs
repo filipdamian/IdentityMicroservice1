@@ -19,6 +19,95 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("FishSpecsFishTank", b =>
+                {
+                    b.Property<int>("FishSpecsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FishTanksId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FishSpecsId", "FishTanksId");
+
+                    b.HasIndex("FishTanksId");
+
+                    b.ToTable("FishSpecsFishTank");
+                });
+
+            modelBuilder.Entity("FishTankPetFish", b =>
+                {
+                    b.Property<int>("FishTanksId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PetFishId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FishTanksId", "PetFishId");
+
+                    b.HasIndex("PetFishId");
+
+                    b.ToTable("FishTankPetFish");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.FishSpecs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Diet")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("FishSize")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Species")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("WaterAcidity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("WaterTemperature")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("WaterType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FishSpecs");
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.FishTank", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<decimal>("Height")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Lenght")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Width")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FishTanks");
+                });
+
             modelBuilder.Entity("IdentityMicroservice.Domain.Entities.IdentityRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -273,6 +362,21 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                     b.ToTable("IdentityUserTokenConfirmation");
                 });
 
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.PetFish", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FishName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PetFish");
+                });
+
             modelBuilder.Entity("IdentityMicroservice.Domain.Entities.Screen", b =>
                 {
                     b.Property<Guid>("Id")
@@ -323,6 +427,7 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("DurationMinutes")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("WOTypeCode")
@@ -408,6 +513,45 @@ namespace IdentityMicroservice.Infrastructure.Migrations
                     b.HasIndex("WOScenarioId");
 
                     b.ToTable("WOTypeScenarioStep");
+                });
+
+            modelBuilder.Entity("FishSpecsFishTank", b =>
+                {
+                    b.HasOne("IdentityMicroservice.Domain.Entities.FishSpecs", null)
+                        .WithMany()
+                        .HasForeignKey("FishSpecsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdentityMicroservice.Domain.Entities.FishTank", null)
+                        .WithMany()
+                        .HasForeignKey("FishTanksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FishTankPetFish", b =>
+                {
+                    b.HasOne("IdentityMicroservice.Domain.Entities.FishTank", null)
+                        .WithMany()
+                        .HasForeignKey("FishTanksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdentityMicroservice.Domain.Entities.PetFish", null)
+                        .WithMany()
+                        .HasForeignKey("PetFishId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("IdentityMicroservice.Domain.Entities.FishTank", b =>
+                {
+                    b.HasOne("IdentityMicroservice.Domain.Entities.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("IdentityMicroservice.Domain.Entities.IdentityRole", b =>

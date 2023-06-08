@@ -1,29 +1,22 @@
 ﻿using IdentityMicroservice.Application.Common.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace IdentityMicroservice.Application.Features.PasswordHashing
 {
     public class HashAlgo : IHashAlgo
     {
-    
-         private const int SaltSize = 16; //128 bits
-         private const int KeySize = 32; //256 bits
-         private const int Iterations = 10000;
+
+        private const int SaltSize = 16; //128 bits
+        private const int KeySize = 32; //256 bits
+        private const int Iterations = 10000;
 
 
 
         public string CalculateHashValueWithInput(string input)
         {
 
-            using(var algorithm = new Rfc2898DeriveBytes(input, SaltSize, Iterations, HashAlgorithmName.SHA512))
+            using (var algorithm = new Rfc2898DeriveBytes(input, SaltSize, Iterations, HashAlgorithmName.SHA512))
             {
                 var hash = Convert.ToBase64String(algorithm.GetBytes(KeySize));
                 var salt = Convert.ToBase64String(algorithm.Salt);
@@ -33,7 +26,7 @@ namespace IdentityMicroservice.Application.Features.PasswordHashing
                 return $"{Iterations}.{salt}.{hash}";
             }
         }
-        public bool IsPasswordVerified(string initialHash, string usedSalt,string input )
+        public bool IsPasswordVerified(string initialHash, string usedSalt, string input)
         {
             string reHashedPassword = "";
 
@@ -44,17 +37,13 @@ namespace IdentityMicroservice.Application.Features.PasswordHashing
                 var hash = Convert.ToBase64String(algorithm.GetBytes(KeySize));
                 var salt = Convert.ToBase64String(algorithm.Salt);
 
-
-
                 reHashedPassword = $"{Iterations}.{salt}.{hash}";
             }
-
-
 
             if (initialHash == reHashedPassword)
                 return true;
             return false;
         }
-         
+
     }
 }

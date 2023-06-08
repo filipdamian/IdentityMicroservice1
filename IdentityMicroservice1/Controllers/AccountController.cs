@@ -12,6 +12,11 @@ using IdentityMicroservice.Application.Features.LinkedinCrawler;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using IdentityMicroservice.Application.Features.ImageLabelPrediction;
+using IdentityMicroservice.Application.Features.TrainNewModel;
+using IdentityMicroservice.Application.Features.Auth.Tank;
+using IdentityMicroservice.Application.Features.Auth.Fish;
+using IdentityMicroservice.Application.Features.Auth.Google;
+using IdentityMicroservice.Application.Features.Auth.Facebook;
 
 namespace IdentityMicroservice1.Controllers
 {
@@ -19,11 +24,9 @@ namespace IdentityMicroservice1.Controllers
     [ApiController]
     public class AccountController : BaseApplicationController
     {
-        private readonly IdentityDbContext _context;
-
-        public AccountController(IdentityDbContext context)
+        // Stryker disable all
+        public AccountController()
         {
-            _context = context;
         }
 
         [HttpPost("register")]
@@ -41,7 +44,7 @@ namespace IdentityMicroservice1.Controllers
             }
 
         }
-
+        // Stryker restore all
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand loginCommand)
@@ -73,7 +76,7 @@ namespace IdentityMicroservice1.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        // Stryker disable all
         [HttpPost]
         [Route("email-confirm")]
 
@@ -164,6 +167,7 @@ namespace IdentityMicroservice1.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet]
         [Route("Linkedin-Crawler")]
@@ -186,9 +190,9 @@ namespace IdentityMicroservice1.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [Route("Image-Prediction")]
         public async Task<IActionResult> PredictImageLabel([FromForm] IFormFile File)
         {
@@ -199,13 +203,136 @@ namespace IdentityMicroservice1.Controllers
                     File = File
                 };
                 var result = await Mediator.Send(imglabelprecit);
-                return Ok();
+                return Ok(result);
             }
             catch (Exception)
             {
 
                 return BadRequest();
             }
+        }
+
+        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost]
+        //[Authorize(Roles = "Admin")]
+        [Route("Train-New-Model")]
+        public async Task<IActionResult> TrainNewModel()
+        {
+            try
+            {
+                TrainNewModelCommand trainNewModel = new();
+                var result = await Mediator.Send(trainNewModel);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("create-edit-tank")]
+        public async Task<IActionResult> CreateTank([FromBody] AddOrUpdateTankCommand addOrUpdateTankCommand)
+        {
+            try
+            {
+                addOrUpdateTankCommand.Model.UserId = new Guid(HttpContext.Items["UserId"] as string);
+                var result = await Mediator.Send(addOrUpdateTankCommand);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Authorize]
+        [HttpPost]                                  /// get fishes and tanks endpoints
+        [Route("add-or-remove-fish")]
+        public async Task<IActionResult> AddFishToTank([FromBody] AddOrRemoveFishCommand addOrRemoveFishCommand)
+        {
+            try
+            {
+                addOrRemoveFishCommand.UserId = new Guid(HttpContext.Items["UserId"] as string);
+                var result = await Mediator.Send(addOrRemoveFishCommand);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("delete-tank")]
+        public async Task<IActionResult> DeleteTank([FromHeader] int TankId)
+        {
+            try
+            {
+                var deleteTankCommand = new RemoveTankCommand
+                {
+                    TankId = TankId,
+                    UserId = new Guid(HttpContext.Items["UserId"] as string)
+                };
+
+                var result = await Mediator.Send(deleteTankCommand);
+                return Ok(result);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        [Authorize]
+        [HttpGet("one-or-all-tanks")]
+        public async Task<IActionResult> GetTanks([FromQuery] int? TankId = null)
+        {
+            try
+            {
+                var getTanksCommand = new GetTanksCommand
+                {
+                    TankId = TankId,
+                    UserId = new Guid(HttpContext.Items["UserId"] as string)
+                };
+
+                var result = await Mediator.Send(getTanksCommand);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpGet("google-api-login")]
+        public async Task<IActionResult> GoogleLogin([FromQuery] string AccessToken)
+        {
+            var googleLoginCommand = new GoogleLoginApiCommand
+            {
+                AccessToken = AccessToken
+            };
+
+            var res = await Mediator.Send(googleLoginCommand);
+
+            return Ok(res);
+        }
+
+        [HttpGet("facebook-api-login")]
+        public async Task<IActionResult> FacebookLogin([FromQuery] string AccessToken)
+        {
+            var facebookLoginCommand = new FacebookLoginApiCommand
+            {
+                AccessToken = AccessToken
+            };
+
+            var res = await Mediator.Send(facebookLoginCommand);
+
+            return Ok(res);
         }
     }
 }

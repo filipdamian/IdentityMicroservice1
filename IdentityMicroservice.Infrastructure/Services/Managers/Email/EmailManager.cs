@@ -4,6 +4,7 @@ using IdentityMicroservice.Application.ViewModels.External.Email;
 using IdentityMicroservice.Domain.Entities;
 using IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity;
 using IdentityMicroservice.Infrastructure.Services.HttpClients.EmailSender;
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -47,9 +48,11 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Email
         {
             try
             {
+
                 //generate random code or link to send to body
                 // var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:{token.ConfirmationToken}");
-                var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code:http://localhost:4200/unauthenticated/auth/email-confirmation/{token.ConfirmationToken}");
+                var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code {token.ConfirmationToken}");
+                //var message = new MessageUsers(new string[] { user.Email }, "Email Confirmation", $"This is the confirmation code for desktop:http://localhost:4200/unauthenticated/auth/email-confirmation/{token.ConfirmationToken} and this for mobile ${sixCodeDigit}");
                 //EmailMessageModel message = new EmailMessageModel
                 //{
                 //    Email = user.Email,

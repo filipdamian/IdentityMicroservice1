@@ -19,8 +19,10 @@ namespace IdentityMicroservice.Application.Common.Interfaces
         Task<IdentityUser> GetUserByEmail(string email);
         Task<IdentityUser> GetUserByIdentityUserTokenConfirmation(string token);
 
-        Task<TokenWrapper> Login(LoginCommand loginCommand);
+        Task<TokenWrapper> Login(string UniqueIdentifier);
         Task<IdentityUser> Register(RegisterCommand registerCommand);
+        Task<TokenWrapper> RegisterGoogleUser(GoogleLoginResponseModel googleLogin);
+        Task<TokenWrapper> RegisterFacebookUser(FacebookLoginResponseModel facebookLogin);
         Task<IdentityUserToken> GetUserTokenByRefreshToken(string refreshtoken);
         Task<IdentityUser> updateUser(IdentityUser user);
         Task<IdentityUser> UpdateUserPassword(IdentityUser user,string password);

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace IdentityMicroservice1.Controllers
 {
+    // Stryker disable all
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

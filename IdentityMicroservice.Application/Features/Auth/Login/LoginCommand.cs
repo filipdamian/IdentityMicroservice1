@@ -16,7 +16,7 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
         public string Password { get; set; }
     }
 
-    internal class LoginCommandHandler : IRequestHandler<LoginCommand, TokenWrapper>
+    public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenWrapper>
     {
         private readonly IUserManager _userManager;
         private readonly IHashAlgo _hashAlgo;
@@ -36,12 +36,10 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
             //mut in appsettings
             const int maxLoginAttempts = 5;
 
-
-            var userProps = await  _userManager.GetUserSelectedProperties(
+            var userProps = await _userManager.GetUserSelectedProperties(
                 request.UniqueIdentifier,
                 user => new { user.Id, user.EmailConfirmed, user.PasswordHash, user.LockoutEnabled, user.LockoutEnd });
-            
-  
+
             if (userProps == null)
             {
                 string message = $"User with username or password = {request.UniqueIdentifier}  was not found";
@@ -53,14 +51,8 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 throw new EmailConfirmationException("Email not confirmed");
             }
 
-            
-           
-               
-           
-
-            string initialsalt=userProps.PasswordHash.Split('.')[1];
+            string initialsalt = userProps.PasswordHash.Split('.')[1];
             bool isPasswordVerified = _hashAlgo.IsPasswordVerified(userProps.PasswordHash, initialsalt, request.Password);
-
 
             var user = await _userManager.GetUserById(userProps.Id);
 
@@ -75,10 +67,8 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 user.LockoutEnd = null;
             }
 
-
-            if (isPasswordVerified==false)
+            if (isPasswordVerified == false)
             {
-
                 if (user.NumberOfFailLoginAttempts >= maxLoginAttempts)
                 {
                     user.LockoutEnabled = true;
@@ -87,8 +77,6 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                     await _userManager.updateUser(user);
                     throw new ExceededMaximumAmountOfLoginAttemptsException($"Exceeded maximum amount of login attemtps. {user.LockoutEnd} minutes left");
                 }
-                
-
 
                 user.NumberOfFailLoginAttempts += 1;
                 await _userManager.updateUser(user);
@@ -104,11 +92,10 @@ namespace IdentityMicroservice.Application.Features.Auth.Login
                 //if date.now< obj.expiredate: login else: generete new login and refresh token
                 user.NumberOfFailLoginAttempts = 0;
                 await _userManager.updateUser(user);
-                var result = _userManager.Login(request);
+                var result = _userManager.Login(request.UniqueIdentifier);
                 return await result;
 
             }
-           
         }
     }
 }

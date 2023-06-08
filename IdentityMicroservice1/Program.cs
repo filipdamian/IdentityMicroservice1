@@ -15,6 +15,7 @@ namespace IdentityMicroservice1
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
+               
             });
 
     }

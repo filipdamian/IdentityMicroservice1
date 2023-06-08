@@ -20,7 +20,7 @@ namespace IdentityMicroservice.Application.Features.ImageLabelPrediction
             _deepNeuralNetworkModel = deepNeuralNetworkModel;
         }
 
-        public Task<string> Handle(ImageLabelPredictionCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(ImageLabelPredictionCommand request, CancellationToken cancellationToken)
         {
             if (request.File.Length > 0)
             {
@@ -42,16 +42,12 @@ namespace IdentityMicroservice.Application.Features.ImageLabelPrediction
                 var memStream = new MemoryStream();
                 request.File.CopyTo(memStream);
                 var byteFile = memStream.ToArray();
-                _deepNeuralNetworkModel.MakePredictionsViaTrainedModel(filePath,byteFile);
+
+                var response = await Task.Run(() => _deepNeuralNetworkModel.MakePredictionsViaTrainedModel(filePath, byteFile));
+
+                return response;
             }
-            else
-            {
-                //Not uploaded
-            }
-
-
-
-            return null;
+            return "";
         }
     }
 

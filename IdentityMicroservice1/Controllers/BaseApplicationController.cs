@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace IdentityMicroservice1.Controllers
 {
+    // Stryker disable all
     [Route("api/[controller]")]
     [ApiController]
     public class BaseApplicationController : ControllerBase
