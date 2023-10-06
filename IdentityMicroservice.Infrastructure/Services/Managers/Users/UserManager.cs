@@ -193,7 +193,11 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
             {
                 Email = googleLogin.Email,
                 EmailConfirmed = true,
-                Username = googleLogin.GivenName
+                Username = googleLogin.Email,
+                PasswordHash = "googleLogin",
+                PhoneNumber = "googleLogin",
+                PhoneNumberCountryPrefix="gglph",
+
             };
 
             _context.IdentityUsers.Add(user);
@@ -211,7 +215,10 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Users
             {
                 Email = facebookLogin.Email,
                 EmailConfirmed = true,
-                Username = facebookLogin.Name
+                Username = facebookLogin.Name,
+                PasswordHash = "facebookLogin",
+                PhoneNumber = "facebookLogin",
+                PhoneNumberCountryPrefix = "fbph"
             };
 
             _context.IdentityUsers.Add(user);

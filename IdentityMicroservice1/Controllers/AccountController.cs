@@ -310,11 +310,11 @@ namespace IdentityMicroservice1.Controllers
         }
 
         [HttpGet("google-api-login")]
-        public async Task<IActionResult> GoogleLogin([FromQuery] string AccessToken)
+        public async Task<IActionResult> GoogleLogin([FromQuery] string accessToken)
         {
             var googleLoginCommand = new GoogleLoginApiCommand
             {
-                AccessToken = AccessToken
+                AccessToken = accessToken
             };
 
             var res = await Mediator.Send(googleLoginCommand);
@@ -323,15 +323,23 @@ namespace IdentityMicroservice1.Controllers
         }
 
         [HttpGet("facebook-api-login")]
-        public async Task<IActionResult> FacebookLogin([FromQuery] string AccessToken)
+        public async Task<IActionResult> FacebookLogin([FromQuery] string accessToken)
         {
             var facebookLoginCommand = new FacebookLoginApiCommand
             {
-                AccessToken = AccessToken
+                AccessToken = accessToken
             };
 
             var res = await Mediator.Send(facebookLoginCommand);
 
+            return Ok(res);
+        }
+        [HttpGet("list-of-fish-in-db")]
+        public async Task<IActionResult> AllFish()
+        {
+            var allFishCommand = new AllFishCommand();
+            allFishCommand.UserId = new Guid(HttpContext.Items["UserId"] as string);
+            var res = await Mediator.Send(allFishCommand);
             return Ok(res);
         }
     }

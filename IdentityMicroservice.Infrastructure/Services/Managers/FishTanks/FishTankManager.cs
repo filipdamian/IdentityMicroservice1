@@ -4,6 +4,7 @@ using IdentityMicroservice.Domain.Entities;
 using IdentityMicroservice.Infrastructure.Persistence.DbContexts.Identity;
 using IdentityMicroservice.Infrastructure.Services.Mappers;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.FishTanks
 
         public async Task<bool> AddOrRemoveFish(int TankId, string FishName, bool isDeleted)
         {
-            var existingFishTank = await _context.FishTanks.Include(x=>x.PetFish).Where(x => x.Id == TankId).ToListAsync();
+            var existingFishTank = await _context.FishTanks.Include(x => x.PetFish).Where(x => x.Id == TankId).ToListAsync();
 
             if (existingFishTank != null)
             {
@@ -142,7 +143,12 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.FishTanks
             }
         }
 
-        public async Task<GetTanksModel> GetFishTanks(int? TankId = null)
+        public async Task<List<string>> GetAllFish()
+        {
+            return await _context.FishSpecs.Select(x => x.Species).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<GetTanksModel> GetFishTanks(Guid userId,int? TankId = null)
         {
             List<FishTank> fishTanks;
             var tankModel = new GetTanksModel();
@@ -151,7 +157,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.FishTanks
             if (TankId == null)
             {
                 //get all 
-                fishTanks = await _context.FishTanks.Include(x => x.PetFish).ToListAsync();
+                fishTanks = await _context.FishTanks.Include(x => x.PetFish).Include(x => x.User).Where(x => x.User.Id == userId).ToListAsync();
 
                 tankModel.TankModels = new Dictionary<int, List<string>>();
 

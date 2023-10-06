@@ -30,7 +30,7 @@ namespace IdentityMicroservice.Application.Features.Auth.Tank
 
             if (user != null)
             {
-                var response = await _fishTankManager.GetFishTanks(request.TankId);
+                var response = await _fishTankManager.GetFishTanks(request.UserId,request.TankId);
                 return response;
             }
             throw new Exception("BadAttempt");

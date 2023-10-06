@@ -80,7 +80,7 @@ namespace IdentityMicroservice.Infrastructure.Services.Managers.Token
                 Issuer = _refreshTokenConfig.Issuer,
                 Audience = _refreshTokenConfig.Audience,
                // Expires = DateTime.UtcNow.AddDays(Int32.Parse(_loginTokenConfig.Days)),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256),
              };
              var token = tokenHandler.CreateToken(tokenDescriptor);
